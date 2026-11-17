@@ -13,7 +13,9 @@ Scanner : the latest bar is also checked, so you get a list of stocks that just
 Entry   : next day's OPEN.
 Stop    : most recent swing low (gap below stop at open -> exit at open).
 Target  : TARGET_R x risk.
-Time    : exit at CLOSE of day MAX_HOLD_DAYS (weekly swing = 5 trading days).
+Time    : exit at CLOSE of day MAX_HOLD_DAYS if neither stop nor target was hit
+          (5 = 1 week, 10 = 2 weeks, 15 = 3 weeks). HOLD_OPTIONS are compared too.
+Points  : "points" column = exit price - entry price (gross of costs).
 Costs   : COST_PER_SIDE applied on entry and exit (brokerage + slippage).
 If stop and target are both touched on the same day, stop is assumed first.
 
@@ -30,7 +32,9 @@ START = "2015-01-01"
 END = None                    # None = today
 PIVOT_N = 3                   # bars each side to confirm a swing point
 TARGET_R = 2.0                # profit target in multiples of risk
-MAX_HOLD_DAYS = 5             # trading days (5 = about one week)
+MAX_HOLD_DAYS = 15            # trading days: 5 = 1 week, 10 = 2 weeks, 15 = 3 weeks
+HOLD_OPTIONS = [5, 10, 15, 20]  # also compared side by side in the output
+HOLD_CSV = "hold_comparison.csv"
 MAX_RISK_PCT = 0.08           # skip trades where stop is >8% below entry
 COST_PER_SIDE = 0.0010        # 0.10% per side
 USE_VOLUME_FILTER = True      # breakout day volume must be strong
@@ -77,8 +81,9 @@ def find_pivots(high, low, n):
     return is_sh, is_sl
 
 
-def backtest_stock(ticker, df, use_vol=True):
-    """Returns (trades, signals_on_latest_bar)."""
+def backtest_stock(ticker, df, use_vol=True, max_hold=None):
+    """Returns (trades, signals_on_latest_bar). max_hold defaults to MAX_HOLD_DAYS."""
+    mh = max_hold or MAX_HOLD_DAYS
     o, h, l, c, v = (df[k].to_numpy(float) for k in ["Open", "High", "Low", "Close", "Volume"])
     avgvol = (pd.Series(v).rolling(VOL_AVG_DAYS).mean().shift(1)
               .fillna(0).to_numpy())          # previous N days only, no look-ahead
@@ -124,7 +129,7 @@ def backtest_stock(ticker, df, use_vol=True):
                 risk = entry - stop
                 if risk > 0 and risk / entry <= MAX_RISK_PCT:
                     target = entry + TARGET_R * risk
-                    last_day = min(e + MAX_HOLD_DAYS - 1, L - 1)
+                    last_day = min(e + mh - 1, L - 1)
                     exit_px, exit_i, reason = None, None, None
                     for j in range(e, last_day + 1):
                         if j > e and o[j] <= stop:
@@ -137,7 +142,8 @@ def backtest_stock(ticker, df, use_vol=True):
                             exit_px, exit_i, reason = c[j], j, "time"
                         if exit_px is not None:
                             break
-                    if exit_px is not None and not (e == L - 1 and reason == "time"):
+                    # a trade still open when the data ends is not counted
+                    if exit_px is not None and not (reason == "time" and last_day < e + mh - 1):
                         net_pnl = exit_px * (1 - COST_PER_SIDE) - entry * (1 + COST_PER_SIDE)
                         trades.append({
                             "ticker": ticker,
@@ -148,6 +154,7 @@ def backtest_stock(ticker, df, use_vol=True):
                             "stop": round(stop, 2),
                             "target": round(target, 2),
                             "exit": round(exit_px, 2),
+                            "points": round(exit_px - entry, 2),
                             "reason": reason,
                             "days_held": exit_i - e + 1,
                             "ret_pct": round(net_pnl / entry * 100, 2),
@@ -157,6 +164,28 @@ def backtest_stock(ticker, df, use_vol=True):
                         t = exit_i      # no overlapping trades in the same stock
         t += 1
     return trades, today
+
+
+def hold_comparison(data):
+    """Same strategy, different maximum holding periods."""
+    rows = []
+    for mh in HOLD_OPTIONS:
+        tr = [x for tk, df in data.items()
+              for x in backtest_stock(tk, df, USE_VOLUME_FILTER, mh)[0]]
+        if not tr:
+            continue
+        d = pd.DataFrame(tr)
+        wins, gl = d[d.R > 0], -d[d.R <= 0].R.sum()
+        rows.append({
+            "max_hold_days": mh,
+            "trades": len(d),
+            "win_rate_pct": round(len(wins) / len(d) * 100, 1),
+            "expectancy_R": round(d.R.mean(), 3),
+            "profit_factor": round(wins.R.sum() / gl, 2) if gl > 0 else float("inf"),
+            "avg_points": round(d.points.mean(), 2),
+            "avg_days_held": round(d.days_held.mean(), 1),
+        })
+    return pd.DataFrame(rows)
 
 
 def print_scanner(today):
@@ -192,6 +221,9 @@ def summarize(tr, label="ALL"):
     print(f"Expectancy (R)    : {tr.R.mean():.3f}")
     print(f"Profit factor     : {gp / gl if gl > 0 else float('inf'):.2f}")
     print(f"Avg return/trade  : {tr.ret_pct.mean():.2f}%")
+    print(f"Points captured   : avg {tr.points.mean():.2f} per trade, "
+          f"total {tr.points.sum():.0f} (avg win {wins.points.mean() if len(wins) else 0:.2f}, "
+          f"avg loss {losses.points.mean() if len(losses) else 0:.2f})")
     print(f"Avg days held     : {tr.days_held.mean():.1f}")
     print(f"Max drawdown (R)  : {max_dd:.1f}")
     print("Exit reasons      :", tr.reason.value_counts().to_dict())
@@ -238,6 +270,12 @@ def main():
 
     print("\nBy year (expectancy in R):")
     print(trades.groupby(trades.entry_date.dt.year).R.agg(["count", "mean"]).round(3))
+
+    hold = hold_comparison(data)
+    if not hold.empty:
+        print("\nDoes a longer hold help? (same signals, different time limit)")
+        print(hold.to_string(index=False))
+        hold.to_csv(HOLD_CSV, index=False)
 
     print_scanner(today)
 
