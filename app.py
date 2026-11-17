@@ -48,8 +48,11 @@ def show_results(tr):
     tr["exit_date"] = pd.to_datetime(tr["exit_date"])
     tr = tr.sort_values("exit_date").reset_index(drop=True)
 
-    cols = st.columns(6)
-    for col, (k, v) in zip(cols, metrics(tr).items()):
+    m = metrics(tr)
+    if "points" in tr.columns:
+        m["Avg points"] = round(tr.points.mean(), 2)
+    cols = st.columns(len(m))
+    for col, (k, v) in zip(cols, m.items()):
         col.metric(k, v)
 
     st.subheader("Cumulative R")
@@ -118,6 +121,11 @@ with tab2:
     if trades is None or trades.empty:
         st.info("No backtest results yet. Run the GitHub Action once.")
     else:
+        hold = read_csv("hold_comparison.csv")
+        if hold is not None and not hold.empty:
+            st.subheader("Does a longer hold help?")
+            st.caption("Same signals, different maximum holding period (trading days).")
+            st.dataframe(hold, width="stretch")
         show_results(trades)
 
 with tab3:
@@ -127,7 +135,7 @@ with tab3:
     start = c1.text_input("Start date", sb.START)
     pivot_n = c2.number_input("Pivot bars", 2, 8, int(sb.PIVOT_N))
     target_r = c3.number_input("Target (R)", 1.0, 5.0, float(sb.TARGET_R), 0.5)
-    max_hold = c4.number_input("Max hold days", 2, 20, int(sb.MAX_HOLD_DAYS))
+    max_hold = c4.number_input("Max hold days", 2, 40, int(sb.MAX_HOLD_DAYS))
     vol_mult = c5.number_input("Volume x average", 1.0, 5.0, float(sb.VOL_MULT), 0.1)
     use_vol = st.checkbox("Require volume on breakout", True)
 
