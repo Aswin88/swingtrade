@@ -1,16 +1,16 @@
 skip TATAMOTORS: no data
 
 ===== NO VOLUME FILTER (comparison) =====
-Trades            : 809
+Trades            : 814
 Win rate          : 51.1%
 Avg win / loss (R): 0.89 / -0.83
-Expectancy (R)    : 0.051
-Profit factor     : 1.13
+Expectancy (R)    : 0.049
+Profit factor     : 1.12
 Avg return/trade  : 0.32%
-Points captured   : avg 4.20 per trade, total 3394 (avg win 75.62, avg loss -70.29)
+Points captured   : avg 4.20 per trade, total 3419 (avg win 75.19, avg loss -70.00)
 Avg days held     : 12.0
-Max drawdown (R)  : -33.0
-Exit reasons      : {'time': 470, 'stop': 238, 'target': 80, 'gap_stop': 21}
+Max drawdown (R)  : -34.1
+Exit reasons      : {'time': 474, 'stop': 238, 'target': 80, 'gap_stop': 22}
 RELIANCE     trades: 5
 TCS          trades: 7
 HDFCBANK     trades: 6
@@ -18,7 +18,7 @@ ICICIBANK    trades: 2
 INFY         trades: 4
 BHARTIARTL   trades: 3
 ITC          trades: 10
-SBIN         trades: 5
+SBIN         trades: 6
 LT           trades: 8
 HINDUNILVR   trades: 11
 KOTAKBANK    trades: 7
@@ -26,7 +26,7 @@ AXISBANK     trades: 1
 BAJFINANCE   trades: 4
 MARUTI       trades: 9
 SUNPHARMA    trades: 7
-TITAN        trades: 9
+TITAN        trades: 10
 ULTRACEMCO   trades: 5
 ASIANPAINT   trades: 2
 NTPC         trades: 6
@@ -34,7 +34,7 @@ POWERGRID    trades: 4
 ONGC         trades: 2
 TATASTEEL    trades: 3
 JSWSTEEL     trades: 5
-M&M          trades: 9
+M&M          trades: 11
 ADANIPORTS   trades: 3
 COALINDIA    trades: 7
 BAJAJFINSV   trades: 3
@@ -59,63 +59,63 @@ HDFCLIFE     trades: 6
 BAJAJ-AUTO   trades: 7
 
 ===== ALL TRADES =====
-Trades            : 247
-Win rate          : 55.5%
+Trades            : 251
+Win rate          : 55.8%
 Avg win / loss (R): 0.79 / -0.87
-Expectancy (R)    : 0.053
-Profit factor     : 1.14
-Avg return/trade  : 0.26%
-Points captured   : avg -0.58 per trade, total -143 (avg win 63.23, avg loss -80.05)
+Expectancy (R)    : 0.056
+Profit factor     : 1.15
+Avg return/trade  : 0.27%
+Points captured   : avg -0.34 per trade, total -85 (avg win 62.49, avg loss -79.58)
 Avg days held     : 12.0
 Max drawdown (R)  : -9.5
-Exit reasons      : {'time': 147, 'stop': 68, 'target': 25, 'gap_stop': 7}
+Exit reasons      : {'time': 150, 'stop': 69, 'target': 25, 'gap_stop': 7}
 
-===== FIRST HALF (before 2022-04-25) =====
-Trades            : 123
+===== FIRST HALF (before 2022-03-31) =====
+Trades            : 125
 Win rate          : 52.0%
-Avg win / loss (R): 0.94 / -0.89
-Expectancy (R)    : 0.058
-Profit factor     : 1.14
-Avg return/trade  : 0.27%
-Points captured   : avg -2.74 per trade, total -337 (avg win 44.85, avg loss -54.36)
-Avg days held     : 11.4
+Avg win / loss (R): 0.91 / -0.90
+Expectancy (R)    : 0.043
+Profit factor     : 1.10
+Avg return/trade  : 0.17%
+Points captured   : avg -2.87 per trade, total -359 (avg win 44.26, avg loss -53.93)
+Avg days held     : 11.5
 Max drawdown (R)  : -7.9
-Exit reasons      : {'time': 68, 'stop': 36, 'target': 14, 'gap_stop': 5}
+Exit reasons      : {'time': 70, 'stop': 37, 'target': 13, 'gap_stop': 5}
 
-===== SECOND HALF (from 2022-04-25) =====
-Trades            : 124
-Win rate          : 58.9%
-Avg win / loss (R): 0.66 / -0.83
-Expectancy (R)    : 0.048
-Profit factor     : 1.14
-Avg return/trade  : 0.24%
-Points captured   : avg 1.56 per trade, total 194 (avg win 79.34, avg loss -109.76)
+===== SECOND HALF (from 2022-03-31) =====
+Trades            : 126
+Win rate          : 59.5%
+Avg win / loss (R): 0.68 / -0.83
+Expectancy (R)    : 0.068
+Profit factor     : 1.20
+Avg return/trade  : 0.36%
+Points captured   : avg 2.17 per trade, total 274 (avg win 78.29, avg loss -109.76)
 Avg days held     : 12.5
 Max drawdown (R)  : -9.5
-Exit reasons      : {'time': 79, 'stop': 32, 'target': 11, 'gap_stop': 2}
+Exit reasons      : {'time': 80, 'stop': 32, 'target': 12, 'gap_stop': 2}
 
 By year (expectancy in R):
             count   mean
 entry_date              
-2015            9  0.137
+2015           10  0.020
 2016           13 -0.535
-2017           27  0.259
+2017           29  0.281
 2018           14 -0.169
 2019           19  0.119
 2020           13  0.419
 2021           25 -0.135
 2022           18  0.104
-2023           30  0.338
+2023           31  0.348
 2024           23 -0.088
 2025           37  0.061
 2026           19 -0.122
 
 Does a longer hold help? (same signals, different time limit)
  max_hold_days  trades  win_rate_pct  expectancy_R  profit_factor  avg_points  avg_days_held
-             5     252          48.8        -0.019           0.93       -2.55            4.8
-            10     250          52.0         0.027           1.08       -2.73            8.8
-            15     247          55.5         0.053           1.14       -0.58           12.0
-            20     245          49.4         0.033           1.08       -7.13           14.8
+             5     257          49.0        -0.017           0.93       -2.46            4.8
+            10     254          52.4         0.028           1.08       -2.60            8.8
+            15     251          55.8         0.056           1.15       -0.34           12.0
+            20     248          50.0         0.040           1.09       -6.76           14.8
 
 ===== SCANNER: breakout on latest bar =====
 No stock broke its lower high on the latest bar with volume.
